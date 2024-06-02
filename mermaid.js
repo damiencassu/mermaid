@@ -12,13 +12,10 @@ const CHARACTERISTIC_EVENT_TYPES = HAP.CharacteristicEventTypes;
 //Mermaid alarm accessory related constants
 const MERMAID_UUID = HAP.uuid.generate("mermaid.alarm.dev");
 const MERMAID = new ACCESSORY("Mermaid Dev", MERMAID_UUID);
-
-//Mermaid alarm info
-const SECURITY_SYSTEM_INFO = new SERVICE.AccessoryInformation();
-SECURITY_SYSTEM_INFO.setCharacteristic(CHARACTERISTIC.Manufacturer, "Damien CASSU");
-SECURITY_SYSTEM_INFO.setCharacteristic(CHARACTERISTIC.Model, "Mermaid Security System");
-SECURITY_SYSTEM_INFO.setCharacteristic(CHARACTERISTIC.SerialNumber, "007");
-SECURITY_SYSTEM_INFO.setCharacteristic(CHARACTERISTIC.FirmwareRevision, "1.0.0");
+const MANUFACTURER = "Damien CASSU";
+const MODEL = "Mermaid Security System";
+const SERIAL_NUMBER = "007";
+const FIRMWARE_REVISION = "1.0.0";
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -85,7 +82,11 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
 
 //Mermaid service registration and publication
 MERMAID.addService(SECURITY_SYSTEM_SERVICE);
-MERMAID.services[0] = SECURITY_SYSTEM_INFO;
+var accessoryInfo = MERMAID.getService(SERVICE.AccessoryInformation)
+accessoryInfo.setCharacteristic(CHARACTERISTIC.Manufacturer, MANUFACTURER);
+accessoryInfo.setCharacteristic(CHARACTERISTIC.Model, MODEL);
+accessoryInfo.setCharacteristic(CHARACTERISTIC.SerialNumber, SERIAL_NUMBER);
+accessoryInfo.setCharacteristic(CHARACTERISTIC.FirmwareRevision, FIRMWARE_REVISION);
 MERMAID.publish({
 	username: "17:51:07:F4:BC:8A",
 	pincode: "678-90-876",
