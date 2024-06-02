@@ -2,6 +2,8 @@
 const PATH = require("node:path");
 const HAP = require("hap-nodejs");
 const SYS_LOGGER = require("@damiencassu/node-syslogger");
+
+//HAP main objects definition
 const ACCESSORY = HAP.Accessory;
 const SERVICE = HAP.Service;
 const CHARACTERISTIC = HAP.Characteristic;
@@ -35,7 +37,6 @@ const LOG_DIR = "logs";
 const LOG_FILE_SYS = "server.log";
 var sysLogger = new SYS_LOGGER("debug", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
 
-
 //Mermaid initial state
 var currentAlarmState = DISARMED;
 
@@ -53,24 +54,32 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
 		sysLogger.fatal("MERMAID", "Setting security system current state to ALARM_TRIGGERED");
 		currentAlarmState = ALARM_TRIGGERED;
 		callback();
+		//Broadcast mermaid state to HomeKit
+		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, ALARM_TRIGGERED);
 	//If target value is STAY_ARMED and current state is DISARMED then do nothing
 	} else if (value == STAY_ARMED && currentAlarmState == DISARMED){
 		sysLogger.debug("MERMAID", "Trigger signal received while disarmed - Nothing will be done");
         	callback();
+		//Broadcast mermaid state to HomeKit
+		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, DISARMED);
 	//If target value is DISARMED then DISARMED
 	} else if (value == DISARMED){
 		sysLogger.info("MERMAID", "Disarm command received - Disarming...");
 		currentAlarmState = DISARMED;
 		callback();
+		//Broadcast mermaid state to HomeKit
+		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, DISARMED);
 	//If target value is AWAY_ARMED and current state is not ALARM_TRIGGERED than AWAY_ARMED
 	} else if (value == AWAY_ARMED && !(currentAlarmState == ALARM_TRIGGERED)){
 		sysLogger.info("MERMAID", "Arm command received - Arming...");
 		currentAlarmState = AWAY_ARMED;
 		callback();
+		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, AWAY_ARMED);
 	//Else do nothing
 	} else {
 		sysLogger.debug("MERMAID", "Unconfigured command received - Nothing will be done");
 		callback();
+		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, currentAlarmState);
 	}
 });
 
