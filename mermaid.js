@@ -1,5 +1,7 @@
 //Generic module loading
+const PATH = require("node:path");
 const HAP = require("hap-nodejs");
+const SYS_LOGGER = require("@damiencassu/node-syslogger");
 const ACCESSORY = HAP.Accessory;
 const SERVICE = HAP.Service;
 const CHARACTERISTIC = HAP.Characteristic;
@@ -28,13 +30,18 @@ const NIGHT_ARMED = 2;
 const DISARMED = 3;
 const ALARM_TRIGGERED = 4;
 
+//Mermaid logging details and setup
+const LOG_DIR = "logs";
+const LOG_FILE_SYS = "server.log";
+var sysLogger = new SYS_LOGGER("debug", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
+
+
 //Mermaid initial state
 var currentAlarmState = DISARMED;
 
 //Mermaid alarm service event handlers
-
 SECURITY_SYSTEM_CURRENT_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.GET, function(callback){
-	console.log("Getting security system current state: " + currentAlarmState);
+	sysLogger.debug("MERMAID", "Getting security system current state: " + currentAlarmState);
 	callback(undefined, currentAlarmState);
 });
 
@@ -42,28 +49,27 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
 
 	//If target value is STAY_ARMED and current state is AWAY_ARMED then trigger the alarm
 	if (value == STAY_ARMED && currentAlarmState == AWAY_ARMED){
-		console.log("Triger signal received while armed -> Enabling Buzzer !");
-		console.log("Setting security system current state to ALARM_TRIGGERED");
+		sysLogger.fatal("MERMAID", "Trigger signal received while armed");
+		sysLogger.fatal("MERMAID", "Setting security system current state to ALARM_TRIGGERED");
 		currentAlarmState = ALARM_TRIGGERED;
 		callback();
-		console.log("Pew Pew Pew");
 	//If target value is STAY_ARMED and current state is DISARMED then do nothing
 	} else if (value == STAY_ARMED && currentAlarmState == DISARMED){
-		console.log("Triger signal received while disarmed -> Do nothing");
+		sysLogger.debug("MERMAID", "Trigger signal received while disarmed - Nothing will be done");
         	callback();
 	//If target value is DISARMED then DISARMED
 	} else if (value == DISARMED){
-		console.log("Disarm command received -> Disarming...");
+		sysLogger.info("MERMAID", "Disarm command received - Disarming...");
 		currentAlarmState = DISARMED;
 		callback();
 	//If target value is AWAY_ARMED and current state is not ALARM_TRIGGERED than AWAY_ARMED
 	} else if (value == AWAY_ARMED && !(currentAlarmState == ALARM_TRIGGERED)){
-		console.log("Arm command received -> Arming...");
+		sysLogger.info("MERMAID", "Arm command received - Arming...");
 		currentAlarmState = AWAY_ARMED;
 		callback();
 	//Else do nothing
 	} else {
-		console.log("Unconfigured command received -> Doing nothing...");
+		sysLogger.debug("MERMAID", "Unconfigured command received - Nothing will be done");
 		callback();
 	}
 });

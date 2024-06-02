@@ -6,7 +6,8 @@
     "start": "node mermaid.js"
   },
   "dependencies": {
-    "hap-nodejs": "latest"
+    "hap-nodejs": "latest",
+    "@damiencassu/node-syslogger": "latest"
   },
   "repository": {
     "type": "git",
