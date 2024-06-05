@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "hap-nodejs": "latest",
-    "@damiencassu/node-syslogger": "latest"
+    "@damiencassu/node-syslogger": "latest",
+    "@damiencassu/node-core": "latest"
   },
   "repository": {
     "type": "git",

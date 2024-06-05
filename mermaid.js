@@ -2,6 +2,15 @@
 const PATH = require("node:path");
 const HAP = require("hap-nodejs");
 const SYS_LOGGER = require("@damiencassu/node-syslogger");
+const CORE = require("@damiencassu/node-core");
+
+//Mermaid logging details and setup
+const LOG_DIR = "logs";
+const LOG_FILE_SYS = "server.log";
+var sysLogger = new SYS_LOGGER("debug", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
+
+//Mermaid ecosystem
+const APP_PACKAGE_JSON = CORE.getAppPackageJson(sysLogger);
 
 //HAP main objects definition
 const ACCESSORY = HAP.Accessory;
@@ -15,7 +24,7 @@ const MERMAID = new ACCESSORY("Mermaid Dev", MERMAID_UUID);
 const MANUFACTURER = "Damien CASSU";
 const MODEL = "Mermaid Security System";
 const SERIAL_NUMBER = "007";
-const FIRMWARE_REVISION = "1.0.0";
+const FIRMWARE_REVISION = CORE.getAppVersion(APP_PACKAGE_JSON,sysLogger);
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -28,11 +37,6 @@ const AWAY_ARMED = 1;
 const NIGHT_ARMED = 2;
 const DISARMED = 3;
 const ALARM_TRIGGERED = 4;
-
-//Mermaid logging details and setup
-const LOG_DIR = "logs";
-const LOG_FILE_SYS = "server.log";
-var sysLogger = new SYS_LOGGER("debug", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
 
 //Mermaid initial state
 var currentAlarmState = DISARMED;
