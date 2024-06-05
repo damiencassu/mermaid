@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node mermaid.js"
   },
+  "config": {
+    "port": "47129"
+  },
   "dependencies": {
     "hap-nodejs": "latest",
     "@damiencassu/node-syslogger": "latest",
