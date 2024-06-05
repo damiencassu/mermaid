@@ -4,10 +4,14 @@ const HAP = require("hap-nodejs");
 const SYS_LOGGER = require("@damiencassu/node-syslogger");
 const CORE = require("@damiencassu/node-core");
 
+//Custom module loading
+const HAP_UTILITIES = require("./custom_modules/hapUtilities");
+
 //Mermaid logging details and setup
 const LOG_DIR = "logs";
 const LOG_FILE_SYS = "server.log";
 var sysLogger = new SYS_LOGGER("debug", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
+sysLogger.info("server", "########## Mermaid starting... ##########");
 
 //Mermaid ecosystem
 const APP_PACKAGE_JSON = CORE.getAppPackageJson(sysLogger);
@@ -26,6 +30,8 @@ const MANUFACTURER = "Damien CASSU";
 const MODEL = "Mermaid Security System";
 const SERIAL_NUMBER = "007";
 const FIRMWARE_REVISION = CORE.getAppVersion(APP_PACKAGE_JSON,sysLogger);
+var USERNAME = HAP_UTILITIES.getAccessoryUsername(sysLogger);
+USERNAME = USERNAME == undefined ? HAP_UTILITIES.generateUsername(sysLogger) : USERNAME;
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -93,11 +99,11 @@ accessoryInfo.setCharacteristic(CHARACTERISTIC.Model, MODEL);
 accessoryInfo.setCharacteristic(CHARACTERISTIC.SerialNumber, SERIAL_NUMBER);
 accessoryInfo.setCharacteristic(CHARACTERISTIC.FirmwareRevision, FIRMWARE_REVISION);
 MERMAID.publish({
-	username: "17:51:07:F4:BC:8A",
+	username: USERNAME,
 	pincode: "678-90-876",
 	port: APP_PORT,
 	category: HAP.Categories.SECURITY_SYSTEM,
 });
 
-sysLogger.info("mermaid", "####### Mermaid v" + FIRMWARE_REVISION + " started #######");
-sysLogger.info("mermaid", "Listening on port: " + APP_PORT);
+sysLogger.info("mermaid", "Mermaid v" + FIRMWARE_REVISION + " started");
+sysLogger.info("mermaid", "Listening on port " + APP_PORT);
