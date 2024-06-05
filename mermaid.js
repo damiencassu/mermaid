@@ -22,6 +22,7 @@ const ACCESSORY = HAP.Accessory;
 const SERVICE = HAP.Service;
 const CHARACTERISTIC = HAP.Characteristic;
 const CHARACTERISTIC_EVENT_TYPES = HAP.CharacteristicEventTypes;
+const ACCESSORY_DIR = "persist";
 
 //Mermaid alarm accessory related constants
 const MERMAID_UUID = HAP.uuid.generate("mermaid.alarm.dev");
@@ -32,6 +33,8 @@ const SERIAL_NUMBER = "007";
 const FIRMWARE_REVISION = CORE.getAppVersion(APP_PACKAGE_JSON,sysLogger);
 var USERNAME = HAP_UTILITIES.getAccessoryUsername(sysLogger);
 USERNAME = USERNAME == undefined ? HAP_UTILITIES.generateUsername(sysLogger) : USERNAME;
+var PINCODE = CORE.loadConfigFile(PATH.join(__dirname, ACCESSORY_DIR, "AccessoryInfo." + HAP_UTILITIES.convertToFilename(USERNAME) + ".json"));
+PINCODE = PINCODE == undefined ? HAP_UTILITIES.generatePincode(sysLogger) : PINCODE.pincode;
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -100,10 +103,11 @@ accessoryInfo.setCharacteristic(CHARACTERISTIC.SerialNumber, SERIAL_NUMBER);
 accessoryInfo.setCharacteristic(CHARACTERISTIC.FirmwareRevision, FIRMWARE_REVISION);
 MERMAID.publish({
 	username: USERNAME,
-	pincode: "678-90-876",
+	pincode: PINCODE,
 	port: APP_PORT,
 	category: HAP.Categories.SECURITY_SYSTEM,
 });
 
 sysLogger.info("mermaid", "Mermaid v" + FIRMWARE_REVISION + " started");
 sysLogger.info("mermaid", "Listening on port " + APP_PORT);
+sysLogger.info("mermaid", "Pincode to pair with HomeKit: " + PINCODE);
