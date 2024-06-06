@@ -5,7 +5,7 @@ const FS = require("node:fs");
 const CRYPTO = require("node:crypto");
 
 //Program constants
-const ACCESSORY_DIR = "./persist";
+const ACCESSORY_DIR = "./accessory";
 
 //Convert an accessory username found in config file name to a MAC address
 function convertToUsername(fileusername){

@@ -17,13 +17,15 @@ sysLogger.info("server", "########## Mermaid starting... ##########");
 const APP_PACKAGE_JSON = CORE.getAppPackageJson(sysLogger);
 const APP_PORT = parseInt(CORE.getAppPort(APP_PACKAGE_JSON, sysLogger));
 const PROPERTIES_FILE = "properties.json";
+const ACCESSORY_DIR = "accessory";
+HAP.HAPStorage.setCustomStoragePath(PATH.join(__dirname, ACCESSORY_DIR));
 
 //HAP main objects definition
 const ACCESSORY = HAP.Accessory;
 const SERVICE = HAP.Service;
 const CHARACTERISTIC = HAP.Characteristic;
 const CHARACTERISTIC_EVENT_TYPES = HAP.CharacteristicEventTypes;
-const ACCESSORY_DIR = "persist";
+//const ACCESSORY_DIR = "persist";
 
 //Mermaid alarm accessory related constants
 const MERMAID_UUID = HAP.uuid.generate("mermaid.security.system");

@@ -138,3 +138,4 @@ logs/
 
 # Persit files (HAP Accessories details)
 persist/
+accessory/
