@@ -3,6 +3,7 @@
   "version": "1.0.0",
    "license": "MIT",
   "scripts": {
+    "prestart": "node pre-start.js",
     "start": "node mermaid.js"
   },
   "config": {

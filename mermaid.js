@@ -16,6 +16,7 @@ sysLogger.info("server", "########## Mermaid starting... ##########");
 //Mermaid ecosystem
 const APP_PACKAGE_JSON = CORE.getAppPackageJson(sysLogger);
 const APP_PORT = parseInt(CORE.getAppPort(APP_PACKAGE_JSON, sysLogger));
+const PROPERTIES_FILE = "properties.json";
 
 //HAP main objects definition
 const ACCESSORY = HAP.Accessory;
@@ -25,16 +26,16 @@ const CHARACTERISTIC_EVENT_TYPES = HAP.CharacteristicEventTypes;
 const ACCESSORY_DIR = "persist";
 
 //Mermaid alarm accessory related constants
-const MERMAID_UUID = HAP.uuid.generate("mermaid.alarm.dev");
-const MERMAID = new ACCESSORY("Mermaid Dev", MERMAID_UUID);
+const MERMAID_UUID = HAP.uuid.generate("mermaid.security.system");
+const MERMAID = new ACCESSORY("Mermaid Security System", MERMAID_UUID);
 const MANUFACTURER = "Damien CASSU";
 const MODEL = "Mermaid Security System";
-const SERIAL_NUMBER = "007";
 const FIRMWARE_REVISION = CORE.getAppVersion(APP_PACKAGE_JSON,sysLogger);
 var USERNAME = HAP_UTILITIES.getAccessoryUsername(sysLogger);
 USERNAME = USERNAME == undefined ? HAP_UTILITIES.generateUsername(sysLogger) : USERNAME;
 var PINCODE = CORE.loadConfigFile(PATH.join(__dirname, ACCESSORY_DIR, "AccessoryInfo." + HAP_UTILITIES.convertToFilename(USERNAME) + ".json"));
 PINCODE = PINCODE == undefined ? HAP_UTILITIES.generatePincode(sysLogger) : PINCODE.pincode;
+const SERIAL_NUMBER = CORE.loadConfigFile(PATH.join(__dirname, PROPERTIES_FILE)).serial;
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
