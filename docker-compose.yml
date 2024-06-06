@@ -1,0 +1,21 @@
+---
+version: "2"
+services:
+  mermaid:
+    build: 
+        context: .
+        dockerfile: Dockerfile
+        args:
+          GITHUB_TOKEN: XXXXXXX
+    image: mermaid
+    restart: always
+    network_mode: host
+    container_name: mermaid
+    working_dir:  /home/node/app
+    ports:
+      - "47129:47129"
+    volumes:
+      - ./logs:/home/node/app/logs
+      - ./accessory:/home/node/app/accessory
+    command: "npm start"
+...
