@@ -5,8 +5,8 @@ services:
     build: 
         context: .
         dockerfile: Dockerfile
-        args:
-          GITHUB_TOKEN: XXXXXXX
+        secrets:
+          - npmrc
     image: mermaid
     restart: always
     network_mode: host
@@ -18,4 +18,8 @@ services:
       - ./logs:/home/node/app/logs
       - ./accessory:/home/node/app/accessory
     command: "npm start"
+
+secrets:
+  npmrc:
+    file: ${HOME}/.npmrc
 ...

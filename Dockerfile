@@ -1,9 +1,8 @@
 FROM node:latest
-WORKDIR /home/node/app
+ENV APP_HOME="/home/node/app"
+WORKDIR ${APP_HOME}
 RUN git clone https://github.com/damiencassu/mermaid.git ./
-ARG GITHUB_TOKEN
-RUN echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> .npmrc 
-RUN npm install
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm install
 EXPOSE 47129
 VOLUME /home/node/app/logs
 VOLUME /home/node/app/accessory
