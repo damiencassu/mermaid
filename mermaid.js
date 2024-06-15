@@ -10,7 +10,8 @@ const HAP_UTILITIES = require("./custom_modules/hapUtilities");
 //Mermaid logging details and setup
 const LOG_DIR = "logs";
 const LOG_FILE_SYS = "server.log";
-var sysLogger = new SYS_LOGGER("info", PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
+const LOG_LEVEL= "info";
+var sysLogger = new SYS_LOGGER(LOG_LEVEL, PATH.join(__dirname, LOG_DIR, LOG_FILE_SYS));
 sysLogger.info("server", "########## Mermaid starting... ##########");
 
 //Mermaid ecosystem
