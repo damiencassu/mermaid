@@ -38,6 +38,7 @@ USERNAME = USERNAME == undefined ? HAP_UTILITIES.generateUsername(sysLogger) : U
 var PINCODE = CORE.loadConfigFile(PATH.join(__dirname, ACCESSORY_DIR, "AccessoryInfo." + HAP_UTILITIES.convertToFilename(USERNAME) + ".json"));
 PINCODE = PINCODE == undefined ? HAP_UTILITIES.generatePincode(sysLogger) : PINCODE.pincode;
 const SERIAL_NUMBER = CORE.loadConfigFile(PATH.join(__dirname, PROPERTIES_FILE)).serial;
+const FAILSAFE_TIMEOUT = CORE.loadConfigFile(PATH.join(__dirname, PROPERTIES_FILE)).timeout;
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -92,7 +93,7 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
 				} else {
 					sysLogger.info("mermaid", "Alarm disarmed on time during temporary shutdown - Not triggering again the alarm");
 				}
-			}, 30000);
+			}, FAILSAFE_TIMEOUT);
 			currentAlarmState = AWAY_ARMED;
 	                callback();
 			//Broadcast mermaid state to HomeKit
@@ -140,4 +141,6 @@ MERMAID.publish({
 
 sysLogger.info("mermaid", "Mermaid v" + FIRMWARE_REVISION + " started");
 sysLogger.info("mermaid", "Listening on port " + APP_PORT);
+sysLogger.info("mermaid", "Failsafe timeout set to " + FAILSAFE_TIMEOUT + "ms");
 sysLogger.info("mermaid", "Pincode to pair with HomeKit: " + PINCODE);
+
