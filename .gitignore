@@ -139,3 +139,6 @@ logs/
 # Persit files (HAP Accessories details)
 persist/
 accessory/
+
+# Mermaid specific runtime files
+properties.json
