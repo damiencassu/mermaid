@@ -14,8 +14,8 @@ if (!FS.existsSync(PATH.join(__dirname, LOG_DIR))){
         FS.mkdirSync(PATH.join(__dirname, LOG_DIR));
 }
 
-//Generate a new serial if none is found
+//Generate a new property file with a new serial if none is found
 if (!FS.existsSync(PATH.join(__dirname, PROPERTIES_FILE))){
 	var newSerial = "DC" + CRYPTO.randomBytes(6).toString("hex").toUpperCase();
-	FS.writeFileSync(PATH.join(__dirname, PROPERTIES_FILE), JSON.stringify({serial: newSerial}));
+	FS.writeFileSync(PATH.join(__dirname, PROPERTIES_FILE), JSON.stringify({serial: newSerial, timeout: 30000}));
 }

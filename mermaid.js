@@ -26,7 +26,6 @@ const ACCESSORY = HAP.Accessory;
 const SERVICE = HAP.Service;
 const CHARACTERISTIC = HAP.Characteristic;
 const CHARACTERISTIC_EVENT_TYPES = HAP.CharacteristicEventTypes;
-//const ACCESSORY_DIR = "persist";
 
 //Mermaid alarm accessory related constants
 const MERMAID_UUID = HAP.uuid.generate("mermaid.security.system");
@@ -39,6 +38,7 @@ USERNAME = USERNAME == undefined ? HAP_UTILITIES.generateUsername(sysLogger) : U
 var PINCODE = CORE.loadConfigFile(PATH.join(__dirname, ACCESSORY_DIR, "AccessoryInfo." + HAP_UTILITIES.convertToFilename(USERNAME) + ".json"));
 PINCODE = PINCODE == undefined ? HAP_UTILITIES.generatePincode(sysLogger) : PINCODE.pincode;
 const SERIAL_NUMBER = CORE.loadConfigFile(PATH.join(__dirname, PROPERTIES_FILE)).serial;
+const FAILSAFE_TIMEOUT = CORE.loadConfigFile(PATH.join(__dirname, PROPERTIES_FILE)).timeout;
 
 //Mermaid alarm characterisitcs related constants
 const SECURITY_SYSTEM_SERVICE = new SERVICE.SecuritySystem("Mermaid Alarm Dev");
@@ -54,6 +54,7 @@ const ALARM_TRIGGERED = 4;
 
 //Mermaid initial state
 var currentAlarmState = DISARMED;
+var alarmedTriggered = false;
 
 //Mermaid alarm service event handlers
 SECURITY_SYSTEM_CURRENT_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.GET, function(callback){
@@ -65,8 +66,7 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
 
 	//If target value is STAY_ARMED and current state is AWAY_ARMED then trigger the alarm
 	if (value == STAY_ARMED && currentAlarmState == AWAY_ARMED){
-		sysLogger.fatal("mermaid", "Trigger signal received while armed");
-		sysLogger.fatal("mermaid", "Setting security system current state to ALARM_TRIGGERED");
+		sysLogger.fatal("mermaid", "Trigger signal received while armed - Triggering security system");
 		currentAlarmState = ALARM_TRIGGERED;
 		callback();
 		//Broadcast mermaid state to HomeKit
@@ -77,14 +77,41 @@ SECURITY_SYSTEM_TARGET_STATE_CHARACTERISTIC.on(CHARACTERISTIC_EVENT_TYPES.SET, f
         	callback();
 		//Broadcast mermaid state to HomeKit
 		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, DISARMED);
+	//If target value is STAY_ARMED and current state is ALARM_TRIGGERED then check for temporary shutdown
+	} else if (value == STAY_ARMED && currentAlarmState == ALARM_TRIGGERED){
+		sysLogger.info("mermaid", "Trigger signal received while triggered - Checking if temporary shutdown is authorized");
+		if (!alarmedTriggered){
+			sysLogger.info("mermaid", "Temporary shutdown is authorized - Initiating...");
+			alarmedTriggered = true;
+			//Set timeout
+			setTimeout(function() {
+				//If after timeout the alarmed is not DISARMED then trigger again the alarm
+				if (currentAlarmState != DISARMED){
+					sysLogger.fatal("mermaid", "Fail to disarm during temporary shutdown - Triggering again the security system");
+					currentAlarmState = ALARM_TRIGGERED;
+					SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, ALARM_TRIGGERED);
+				} else {
+					sysLogger.info("mermaid", "Alarm disarmed on time during temporary shutdown - Not triggering again the alarm");
+				}
+			}, FAILSAFE_TIMEOUT);
+			currentAlarmState = AWAY_ARMED;
+	                callback();
+			//Broadcast mermaid state to HomeKit
+        	        SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, AWAY_ARMED);
+		} else {
+			sysLogger.info("mermaid", "Temporary shutdown is not authorized");
+			callback();
+			SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, currentAlarmState);
+		}
 	//If target value is DISARMED then DISARMED
 	} else if (value == DISARMED){
 		sysLogger.info("mermaid", "Disarm command received - Disarming...");
+		alarmedTriggered = false;
 		currentAlarmState = DISARMED;
 		callback();
 		//Broadcast mermaid state to HomeKit
 		SECURITY_SYSTEM_SERVICE.updateCharacteristic(CHARACTERISTIC.SecuritySystemCurrentState, DISARMED);
-	//If target value is AWAY_ARMED and current state is not ALARM_TRIGGERED than AWAY_ARMED
+	//If target value is AWAY_ARMED and current state is not ALARM_TRIGGERED then AWAY_ARMED
 	} else if (value == AWAY_ARMED && !(currentAlarmState == ALARM_TRIGGERED)){
 		sysLogger.info("mermaid", "Arm command received - Arming...");
 		currentAlarmState = AWAY_ARMED;
@@ -114,4 +141,6 @@ MERMAID.publish({
 
 sysLogger.info("mermaid", "Mermaid v" + FIRMWARE_REVISION + " started");
 sysLogger.info("mermaid", "Listening on port " + APP_PORT);
+sysLogger.info("mermaid", "Failsafe timeout set to " + FAILSAFE_TIMEOUT + "ms");
 sysLogger.info("mermaid", "Pincode to pair with HomeKit: " + PINCODE);
+

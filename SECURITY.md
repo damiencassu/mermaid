@@ -6,9 +6,10 @@ Support and bug/vulnerability fixes are only provided for the latest stable vers
 
 Vulnerabilities can also be reported for beta branches/versions.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
+| Version         | Supported          |
+| --------------- | ------------------ |
+| 1.1.x           | :white_check_mark: |
+| 1.0.x and below | :x:                |
 
 ## Reporting a Vulnerability
 
